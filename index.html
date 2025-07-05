@@ -123,6 +123,7 @@
             color: #777;
             font-size: 0.9em;
         }
+        /* Removed voice-selection styles as it's no longer needed */
     </style>
 </head>
 <body>
@@ -178,13 +179,15 @@
 
         ---
 
+        <!-- Removed voice-selection div -->
+
         <div class="button-group">
             <button class="button" onclick="showInfo('types')">ประเภทของ Safety Valve</button>
             <button class="button" onclick="showInfo('maintenance')">การบำรุงรักษาเบื้องต้น</button>
             <button class="button" onclick="showInfo('test')">การทดสอบสำคัญอย่างไร?</button>
-            <!-- Buttons for audio control using Web Speech API -->
-            <button class="button audio-control" onclick="playTextToSpeech()">▶️ เล่นเสียงอธิบาย (AI)</button>
-            <button class="button audio-control" onclick="stopTextToSpeech()">⏸️ หยุดเสียง (AI)</button>
+            <!-- Buttons for audio control using pre-recorded audio file -->
+            <button class="button audio-control" onclick="playAudio()">▶️ เล่นเสียงอธิบาย</button>
+            <button class="button audio-control" onclick="pauseAudio()">⏸️ หยุดเสียง</button>
         </div>
 
         <!-- Information boxes, initially hidden -->
@@ -228,11 +231,11 @@
         </footer>
     </div>
 
-    <script>
-        // Initialize SpeechSynthesisUtterance and SpeechSynthesis API
-        let utterance = null;
-        const synth = window.speechSynthesis;
+    <!-- Audio element for explanation -->
+    <!-- IMPORTANT: Replace 'YOUR_AUDIO_FILE_URL_HERE.mp3' with the actual URL of your audio file. -->
+    <audio id="explanationAudio" src="soundsv.wav" preload="auto"></audio>
 
+    <script>
         /**
          * Toggles the visibility of information boxes based on the provided ID.
          * Hides all other info boxes before showing the selected one.
@@ -255,58 +258,22 @@
         }
 
         /**
-         * Plays the main text content using the Web Speech API (Text-to-Speech).
-         * It concatenates text from various sections of the document.
+         * Plays the audio explanation from the audio element.
          */
-        function playTextToSpeech() {
-            // Stop any ongoing speech before starting a new one
-            if (synth.speaking) {
-                synth.cancel();
+        function playAudio() {
+            const audio = document.getElementById('explanationAudio');
+            if (audio) {
+                audio.play();
             }
-
-            // Collect all the text from the main content sections
-            let textToSpeak = "";
-            textToSpeak += document.querySelector('p').textContent; // Introduction paragraph
-            textToSpeak += document.querySelector('h2:nth-of-type(1)').textContent + ". " + document.querySelector('p:nth-of-type(2)').textContent; // What is Safety Valve?
-            textToSpeak += document.querySelector('h2:nth-of-type(2)').textContent + ". "; // Why is it important?
-            document.querySelectorAll('ul:nth-of-type(1) li').forEach(item => {
-                textToSpeak += item.textContent + ". ";
-            });
-            textToSpeak += document.querySelector('h2:nth-of-type(3)').textContent + ". " + document.querySelector('p:nth-of-type(3)').textContent; // Main components
-            document.querySelectorAll('ul:nth-of-type(2) li').forEach(item => {
-                textToSpeak += item.textContent + ". ";
-            });
-            textToSpeak += document.querySelector('h2:nth-of-type(4)').textContent + ". " + document.querySelector('p:nth-of-type(4)').textContent; // Basic working principle
-            document.querySelectorAll('ol li').forEach(item => {
-                textToSpeak += item.textContent + ". ";
-            });
-            textToSpeak += document.querySelector('footer p:nth-of-type(1)').textContent; // Footer message
-
-            // Create a new SpeechSynthesisUtterance object
-            utterance = new SpeechSynthesisUtterance(textToSpeak);
-
-            // Set language to Thai (th-TH) for more natural pronunciation if available
-            utterance.lang = 'th-TH';
-
-            // Find a Thai voice if available
-            const voices = synth.getVoices();
-            const thaiVoice = voices.find(voice => voice.lang === 'th-TH' || voice.lang.startsWith('th-'));
-            if (thaiVoice) {
-                utterance.voice = thaiVoice;
-            } else {
-                console.warn("Thai voice not found. Using default browser voice.");
-            }
-
-            // Speak the text
-            synth.speak(utterance);
         }
 
         /**
-         * Stops the ongoing text-to-speech.
+         * Pauses the audio explanation from the audio element.
          */
-        function stopTextToSpeech() {
-            if (synth.speaking) {
-                synth.cancel();
+        function pauseAudio() {
+            const audio = document.getElementById('explanationAudio');
+            if (audio) {
+                audio.pause();
             }
         }
     </script>
